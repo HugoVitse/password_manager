@@ -1,10 +1,11 @@
 import tkinter as tk
 from utils import aes
 import requests
-
+from config import config
 
 fenetre = tk.Tk()
 fenetre.title("Password Manager")
+
 row_count = 0
 col_count = 0
 
@@ -19,17 +20,20 @@ def clear():
     
     for widget in fenetre.winfo_children():
         widget.grid_forget() 
+        
     
 def login(password : str):
-    req = requests.get("http://localhost:5000/get_vault")
+    
+    req = requests.get(f"{config.config["scheme"]}://{config.config["adress"]}:{config.config["port"]}/get_vault")
     vault = req.json()
+    
     passwords = aes.decrypt(bytes.fromhex(vault["vault"]),password,bytes.fromhex(vault["tag"]), bytes.fromhex(vault["nonce"]))
     if(passwords != "error"):
         afficher_page_accueil(passwords,password)
         
         
         
-def save(entries_passwords,entries_usernames,_passwords, password):
+def save(entries_passwords : list,entries_usernames : list,_passwords : dict, password: str):
     
     passwords = []
     
@@ -46,7 +50,7 @@ def save(entries_passwords,entries_usernames,_passwords, password):
     encrypted_passwords, tag ,nonce = aes.encrypt(passwords,password)
     
 
-    url = "http://localhost:5000/set_vault"
+    url = f"{config.config["scheme"]}://{config.config["adress"]}:{config.config["port"]}/set_vault"
 
 
     data = {
@@ -60,7 +64,7 @@ def save(entries_passwords,entries_usernames,_passwords, password):
     
 
 
-def afficher_page_accueil(passwords,password):
+def afficher_page_accueil(passwords : dict,password : str):
     
     global row_count,col_count
     
@@ -120,9 +124,6 @@ def afficher_login():
     global row_count,col_count
     clear()
     
-    
-
-    
     fenetre.grid_rowconfigure(0, weight=1)
     fenetre.grid_rowconfigure(1, weight=1)
     fenetre.grid_columnconfigure(0, weight=1)
@@ -139,5 +140,4 @@ def afficher_login():
 
 afficher_login()
 
-# Boucle principale
 fenetre.mainloop()
