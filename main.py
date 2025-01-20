@@ -4,7 +4,7 @@ test = [
     {
         "id":1,
         "data":{
-            "host":"google.com",
+            "host":"https://www.facebook.com/",
             "username":"hugo",
             "password":"azerty"
         }
